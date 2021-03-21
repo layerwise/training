@@ -2,6 +2,7 @@
 *.odp
 
 data/
+scans/
 
 
 # Byte-compiled / optimized / DLL files
