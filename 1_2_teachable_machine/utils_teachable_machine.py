@@ -38,8 +38,6 @@ class MachineLearningModel:
 
         #turn the image into a numpy array
         image_array = np.asarray(image)
-        
-        image.show()
 
         # Normalize the image
         normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
