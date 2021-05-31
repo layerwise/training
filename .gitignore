@@ -5,6 +5,8 @@ data/
 scans/
 misc/
 
+4_projects/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
