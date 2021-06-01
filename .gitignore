@@ -1,9 +1,16 @@
 *.pdf
 *.odp
+*.odp#
 
 data/
 scans/
 misc/
+
+2_1_connectionist_neuron/notes
+2_3_lineare_regression/notes
+2_4_overfitting_underfitting/notes
+2_5_decision_tree/notes
+
 
 4_projects/
 
