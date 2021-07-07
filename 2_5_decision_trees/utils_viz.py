@@ -1,5 +1,3 @@
-# %%file helpers_05_08.py
-
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
@@ -7,34 +5,37 @@ from ipywidgets import interact
 
 
 def visualize_tree(estimator, X, y, boundaries=True,
-                   xlim=None, ylim=None, ax=None):
-    ax = ax or plt.gca()
+                   xlim=None, ylim=None, ax=None, fit=True, cmap="viridis"):
+    if ax is None:
+        ax = plt.gca()
     
-    # Plot the training points
-    ax.scatter(X[:, 0], X[:, 1], c=y, s=30, cmap='viridis',
+    ax.scatter(X[:, 0], X[:, 1], c=y, s=30, cmap=cmap,
                clim=(y.min(), y.max()), zorder=3)
-    ax.axis('tight')
-    ax.axis('off')
+
     if xlim is None:
         xlim = ax.get_xlim()
     if ylim is None:
         ylim = ax.get_ylim()
     
     # fit the estimator
-    estimator.fit(X, y)
-    xx, yy = np.meshgrid(np.linspace(*xlim, num=200),
-                         np.linspace(*ylim, num=200))
-    Z = estimator.predict(np.c_[xx.ravel(), yy.ravel()])
-
-    # Put the result into a color plot
+    if fit:
+        estimator.fit(X, y)
+    xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], num=200),
+                         np.linspace(ylim[0], ylim[1], num=200))
+    Z = estimator.predict(
+        np.column_stack((xx.flatten(), yy.flatten()))
+    )
+    
     n_classes = len(np.unique(y))
     Z = Z.reshape(xx.shape)
     contours = ax.contourf(xx, yy, Z, alpha=0.3,
                            levels=np.arange(n_classes + 1) - 0.5,
-                           cmap='viridis', vmin=y.min(), vmax=y.max(),#clim=(y.min(), y.max()),
+                           cmap=cmap, vmin=y.min(), vmax=y.max(),#clim=(y.min(), y.max()),
                            zorder=1)
 
     ax.set(xlim=xlim, ylim=ylim)
+    ax.axis('tight')
+    ax.axis('off')
     
     # Plot the decision boundaries
     def plot_boundaries(i, xlim, ylim):
@@ -60,7 +61,7 @@ def visualize_tree(estimator, X, y, boundaries=True,
         
       
     
-def visualize_classifier(model, X, y, ax=None, cmap='rainbow'):
+def visualize_classifier(model, X, y, ax=None, cmap='viridis', fit=True):
     ax = ax or plt.gca()
     
     # Plot the training points
@@ -72,10 +73,13 @@ def visualize_classifier(model, X, y, ax=None, cmap='rainbow'):
     ylim = ax.get_ylim()
     
     # fit the estimator
-    model.fit(X, y)
-    xx, yy = np.meshgrid(np.linspace(*xlim, num=200),
-                         np.linspace(*ylim, num=200))
-    Z = model.predict(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
+    if fit:
+        estimator.fit(X, y)
+    xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], num=200),
+                         np.linspace(ylim[0], ylim[1], num=200))
+    Z = estimator.predict(
+        np.column_stack((xx.flatten(), yy.flatten()))
+    )
 
     # Create a color plot with the results
     n_classes = len(np.unique(y))
@@ -86,27 +90,3 @@ def visualize_classifier(model, X, y, ax=None, cmap='rainbow'):
 
     ax.set(xlim=xlim, ylim=ylim)
 
-
-def plot_tree_interactive(X, y, ax=None):
-    def interactive_tree(depth=1):
-        clf = DecisionTreeClassifier(max_depth=depth, random_state=0)
-        visualize_tree(clf, X, y, ax=ax)
-
-    return interact(interactive_tree, depth=[1, 2, 3, 4, 5, 6])
-
-
-def randomized_tree_interactive(X, y):
-    N = int(0.75 * X.shape[0])
-    
-    xlim = (X[:, 0].min(), X[:, 0].max())
-    ylim = (X[:, 1].min(), X[:, 1].max())
-    
-    def fit_randomized_tree(random_state=0):
-        clf = DecisionTreeClassifier(max_depth=15)
-        i = np.arange(len(y))
-        rng = np.random.RandomState(random_state*50)
-        rng.shuffle(i)
-        visualize_tree(clf, X[i[:N]], y[i[:N]], boundaries=False,
-                       xlim=xlim, ylim=ylim)
-    
-    interact(fit_randomized_tree, random_state=[0, 1, 2, 3]);
